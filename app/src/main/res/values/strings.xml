@@ -1,0 +1,11 @@
+<resources>
+    <string name="APP_NAME">地図検索アプリ</string>
+    <string name="EDIT_TEXT_KEYWORD">キーワードを入力</string>
+    <string name="MAP_SHOW">MAP表示</string>
+    <string name="HISTORY">履歴</string>
+    <string name="DELETE_HISTORY">履歴を削除</string>
+    <string name="LOCATION">現在地</string>
+    <string name="FINISH">終了</string>
+    <string name="LATITUDE">緯度</string>
+    <string name="LONGITUDE">経度</string>
+</resources>

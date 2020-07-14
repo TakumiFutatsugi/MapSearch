@@ -1,0 +1,5 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="APP_THEME" parent="Theme.AppCompat.Light.NoActionBar">toolBar</style>
+
+</resources>
