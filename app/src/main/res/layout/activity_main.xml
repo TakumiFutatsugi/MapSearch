@@ -19,19 +19,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <EditText
-            android:id="@+id/mainEditText"
-            android:layout_width="wrap_content"
+            android:id="@+id/locationKeyword"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="textPersonName"
-            android:hint="@string/EDIT_TEXT_KEYWORD" >
+            android:hint="@string/KEYWORD_HINT"
+            android:autofillHints="">
         </EditText>
+
         <Button
-            android:id="@+id/mainMapShowButton"
+            android:id="@+id/mainShowMapButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/MAP_SHOW">
-        </Button>
+            android:text="@string/MAP_SHOW" />
     </LinearLayout>
 
     <LinearLayout

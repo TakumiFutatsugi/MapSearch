@@ -1,6 +1,7 @@
 <resources>
     <string name="APP_NAME">地図検索アプリ</string>
-    <string name="EDIT_TEXT_KEYWORD">キーワードを入力</string>
+    <string name="KEYWORD_HINT">キーワードを入力</string>
+    <string name="KEYWORD_EMPTY_MESSAGE">キーワードを入力してください</string>
     <string name="MAP_SHOW">MAP表示</string>
     <string name="HISTORY">履歴</string>
     <string name="DELETE_HISTORY">履歴を削除</string>

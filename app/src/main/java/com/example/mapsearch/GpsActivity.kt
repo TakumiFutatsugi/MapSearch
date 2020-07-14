@@ -11,18 +11,20 @@ class GpsActivity : AppCompatActivity() {
         /** ToolbarをActionbarとして使用する */
         setSupportActionBar(findViewById(R.id.gpsToolbar))
 
-        /** 戻るボタン追加 */
+        /** Toolbarに戻るボタン追加 */
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(true)
             it.setHomeButtonEnabled(true)
-        } ?: IllegalAccessException("Toolbar cannot be null")
+        }
     }
 
+    /** 戻るボタン押下 */
     override fun onBackPressed() {
         /** Do Something */
         super.onBackPressed()
     }
 
+    /** ナビゲーションバーの戻るボタン押下 */
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

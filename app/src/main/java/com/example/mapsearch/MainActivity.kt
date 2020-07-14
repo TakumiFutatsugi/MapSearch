@@ -1,11 +1,16 @@
 package com.example.mapsearch
 
 import android.content.Intent
+import android.content.pm.ResolveInfo
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     /**
@@ -17,6 +22,29 @@ class MainActivity : AppCompatActivity() {
 
         /** ToolbarをActionbarとして使用する */
         setSupportActionBar(findViewById(R.id.mainToolbar))
+
+        val showMapButton = findViewById<Button>(R.id.mainShowMapButton)
+        showMapButton.setOnClickListener{
+            /** 入力したキーワードを取得 */
+            val editText = findViewById<EditText>(R.id.locationKeyword)
+            val locationKeyword = editText.text.toString()
+            if( locationKeyword == "" ){
+                /** 未入力なら警告を出す */
+            }
+            else {
+                /** 入力文字列をエンコード */
+                val uri = Uri.encode(locationKeyword)
+                val location = Uri.parse("geo:0,0?q=$uri")
+                val mapIntent = Intent(Intent.ACTION_VIEW, location)
+                /** 対応するアプリが存在するかの判定 */
+                val activities: List<ResolveInfo> = packageManager.queryIntentActivities(mapIntent, 0)
+                val isIntentSafe: Boolean = activities.isNotEmpty()
+                if (isIntentSafe) {
+                    /** GoogleMap起動 */
+                    startActivity(mapIntent)
+                }
+            }
+        }
     }
 
     /**
@@ -24,11 +52,16 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.delete -> {}
+            /** 削除ボタン押下 */
+            R.id.delete -> {
+
+            }
+            /** MAP表示ボタン押下 */
             R.id.location -> {
                 val intent = Intent(applicationContext, GpsActivity::class.java)
                 startActivity(intent)
             }
+            /** 終了ボタン押下 */
             R.id.finish -> {
                 finish()
             }
