@@ -9,4 +9,5 @@
     <string name="FINISH">終了</string>
     <string name="LATITUDE">緯度</string>
     <string name="LONGITUDE">経度</string>
+    <string name="GPS_ENABLE_MESSAGE">現在位置を取得するためにはGPS機能の有効化が必要です</string>
 </resources>
