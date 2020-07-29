@@ -4,25 +4,30 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
-import android.location.*
+import android.location.Location
 import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
 class MainActivity : AppCompatActivity(){
     /** 位置情報サービスクライアント */
     private lateinit var fusedLocationClient : FusedLocationProviderClient
+    /** 入力欄 */
     private lateinit var editText: EditText
+    /** 検索履歴アダプター */
+    private lateinit var historyAdapter : ArrayAdapter<String>
+    /** 検索履歴リストビュー */
+    private lateinit var historyListView: ListView
 
     /**
      * main
@@ -32,36 +37,54 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /** 入力欄 */
+        editText = findViewById(R.id.locationKeyword)
+        /** アダプター。配列やListを1つずつ表示するのに使用する */
+        historyAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1)
+        /** 検索履歴 */
+        historyListView = findViewById(R.id.historyListView)
+        /** MAP表示ボタン */
+        val showMapButton = findViewById<Button>(R.id.mainShowMapButton)
         /** ToolbarをActionbarとして使用する */
         setSupportActionBar(findViewById(R.id.mainToolbar))
 
         /** permission処理 */
         startupPermission()
 
-        /** MAP表示ボタン */
-        val showMapButton = findViewById<Button>(R.id.mainShowMapButton)
+        /** MAP表示ボタン押下 */
         showMapButton.setOnClickListener{
+            Log.d("MainActivity", "showMapButton.setOnClickListener")
             /** 入力したキーワードを取得 */
-            val editText = findViewById<EditText>(R.id.locationKeyword)
             val locationKeyword = editText.text.toString()
             if( locationKeyword == "" ){
-                /** 未入力なら警告を出す */
+                /** TODO 未入力なら警告を出す */
             }
             else {
-                /** 入力文字列をエンコード */
-                val uri = Uri.encode(locationKeyword)
-                val location = Uri.parse("geo:0,0?q=$uri")
-                val mapIntent = Intent(Intent.ACTION_VIEW, location)
-                /** インテントを受け取るアプリがあるかの確認 */
-                val activities: List<ResolveInfo> = packageManager.queryIntentActivities(mapIntent, 0)
-                val isIntentSafe: Boolean = activities.isNotEmpty()
-                if (isIntentSafe) {
-                    /** GoogleMap起動 */
-                    startActivity(mapIntent)
-                }
+                addHistoryList(locationKeyword)
+                startMapApp(locationKeyword)
             }
         }
-        editText = findViewById(R.id.locationKeyword)
+        /** リスト項目タップイベント */
+        historyListView.setOnItemClickListener{parent, view, position, id ->
+            val keyword = view.findViewById<TextView>(android.R.id.text1).text.toString()
+            startMapApp(keyword)
+        }
+
+        /** リスト項目長押しイベント */
+        historyListView.setOnItemLongClickListener { parent, view, position, id ->
+            Log.d("MainActivity", "historyListView.setOnItemLongClickListener")
+            AlertDialog.Builder(this).apply {
+                setTitle("削除しますか？")
+                setPositiveButton("OK") { _, _ ->
+                    historyAdapter.remove(historyAdapter.getItem(position))
+                }
+                setNegativeButton("NG") { _, _ ->
+                    /** Do Nothing */
+                }
+                show()
+            }
+            return@setOnItemLongClickListener true
+        }
     }
 
     /**
@@ -83,7 +106,9 @@ class MainActivity : AppCompatActivity(){
         }
     }
 
-    /** 認証結果 */
+    /**
+     * permissionリクエスト結果
+     */
     override fun onRequestPermissionsResult( requestCode: Int,
                                              permissions: Array<out String>,
                                              grantResults: IntArray
@@ -104,10 +129,15 @@ class MainActivity : AppCompatActivity(){
         when(item.itemId){
             /** 削除ボタン押下 */
             R.id.delete -> {
-
+            /** TODO 確認ダイアログ
+             * 履歴を全削除
+             */
             }
-            /** MAP表示ボタン押下 */
+            /** 現在地ボタン押下 */
             R.id.location -> {
+                /** 検索履歴に追加 */
+                addHistoryList("現在地")
+                /** ListVuewにタッチイベントを追加するにはOnItemClickListnerを使用する */
                 val intent = Intent(applicationContext, GpsActivity::class.java)
                 startActivity(intent)
             }
@@ -123,6 +153,25 @@ class MainActivity : AppCompatActivity(){
     }
 
     /**
+     * 検索履歴に追加
+     */
+    private fun addHistoryList(keyword: String) {
+        /** TODO 文字列チェック */
+        /** TODO 履歴の更新
+         * 現在時刻の取得と項目への複数要素格納
+         * 履歴の配列を取得
+         * ダブった項目は配列の最後尾へ移動
+         */
+        if(keyword != "") {
+            /** 検索文字列をアダプターの先頭に追加 */
+            historyAdapter.insert(keyword,0)
+            /** ListViewに、生成したアダプターを設定 */
+            historyListView.adapter = historyAdapter
+        }
+    }
+
+
+    /**
      * Toolbarのメニュー表示
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -131,7 +180,9 @@ class MainActivity : AppCompatActivity(){
         return super.onCreateOptionsMenu(menu)
     }
 
-    /** 位置情報を取得 */
+    /**
+     * 位置情報を取得
+     */
     private fun requestLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val locationListener: LocationListener = object : LocationListener {
@@ -145,7 +196,26 @@ class MainActivity : AppCompatActivity(){
             }
 
             val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1000.0f, locationListener)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1.0f, locationListener)
+        }
+    }
+
+    /**
+     * 地図アプリ起動
+     */
+    private fun startMapApp(keyword: String){
+        Log.d("MainActivity", "startMapApp")
+        /** 入力文字列をエンコード */
+        val uri = Uri.encode(keyword)
+        val location = Uri.parse("geo:0,0?q=$uri")
+        val mapIntent = Intent(Intent.ACTION_VIEW, location)
+
+        /** インテントを受け取るアプリがあるかの確認 */
+        val activities= packageManager.queryIntentActivities(mapIntent, 0)
+        val isIntentSafe = activities.isNotEmpty()
+        if (isIntentSafe) {
+            /** GoogleMap起動 */
+            startActivity(mapIntent)
         }
     }
 }
